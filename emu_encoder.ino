@@ -8,12 +8,12 @@ int outB = 5 ;
 int stepOFF = 0;
 int forward_loop = 0;
 int back_loop = 0;
-int analog_value=0;
-int speed_value=0;
+int analog_value = 0;
+int speed_value = 0;
 
 //Change it. Frequency range in ms.
 int freq_max_ms = 1000;
-int freq_min_ms= 100;
+int freq_min_ms = 100;
 //=================================
 
 
@@ -39,7 +39,7 @@ void setup() {
 void forward() {
   static unsigned long last_interrupt_time = 0;
   unsigned long interrupt_time = millis();
-  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  // If interrupts come faster than 100ms, assume it's a bounce and ignore
   if (interrupt_time - last_interrupt_time > 100)
   {
     if (!stepOFF) {
@@ -56,7 +56,7 @@ void forward() {
 void back() {
   static unsigned long last_interrupt_time = 0;
   unsigned long interrupt_time = millis();
-  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  // If interrupts come faster than 100ms, assume it's a bounce and ignore
   if (interrupt_time - last_interrupt_time > 100)
   {
     if (!stepOFF) {
@@ -73,8 +73,8 @@ void back() {
 void loop() {
 
   analog_value = analogRead(A0);
-  freq_ms = freq_max_ms - int((((freq_max_ms-freq_min_ms/2)/1024.0)*analog_value));
-  
+  freq_ms = freq_max_ms - int((((freq_max_ms - freq_min_ms / 2) / 1024.0) * analog_value));
+
 
   stepOFF = digitalRead(inS);
 
@@ -82,7 +82,7 @@ void loop() {
   if (!stepOFF) {
     if (loopON) {
       stat_step = stat_loop - 1;
-      loopON=0;
+      loopON = 0;
     }
 
 
@@ -107,7 +107,7 @@ void loop() {
     }
   }
   else {
-    loopON=1;
+    loopON = 1;
     stat_loop = stat_step;
     forward_loop = digitalRead(inA);
     back_loop = digitalRead(inB);
