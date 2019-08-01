@@ -12,8 +12,8 @@ int analog_value = 0;
 int speed_value = 0;
 
 //Change it. Frequency range in ms.
-int freq_max_ms = 1000;
-int freq_min_ms = 100;
+int freq_max_ms = 100;
+int freq_min_ms = 10;
 //=================================
 
 
@@ -23,6 +23,9 @@ int freq_ms = 0;
 volatile char stat_step = 0;
 volatile char stat_loop = 0;
 volatile char loopON = 0;
+volatile char step_forward = 0;
+volatile char step_back = 0;
+
 
 
 void setup() {
@@ -42,13 +45,8 @@ void forward() {
   // If interrupts come faster than 100ms, assume it's a bounce and ignore
   if (interrupt_time - last_interrupt_time > 100)
   {
-    if (!stepOFF) {
-      stat_loop = 0;
-      stat_step++;
-      if (stat_step >= 4) {
-        stat_step = 0;
-      }
-    }
+    step_back = 0;
+     step_forward = 1;
   }
   last_interrupt_time = interrupt_time;
 }
@@ -59,13 +57,8 @@ void back() {
   // If interrupts come faster than 100ms, assume it's a bounce and ignore
   if (interrupt_time - last_interrupt_time > 100)
   {
-    if (!stepOFF) {
-      stat_loop = 0;
-      stat_step--;
-      if (stat_step <= -1) {
-        stat_step = 3;
-      }
-    }
+    step_forward = 0;
+    step_back = 1;
   }
   last_interrupt_time = interrupt_time;
 }
@@ -81,97 +74,121 @@ void loop() {
 
   if (!stepOFF) {
     if (loopON) {
-      stat_step = stat_loop - 1;
+      step_forward=0;
+      step_back=0;
       loopON = 0;
     }
 
 
-    if (stat_step == 0)
-    {
+    if (step_forward){
+      
       digitalWrite(outA, LOW);
       digitalWrite(outB, LOW);
-    }
-    if (stat_step == 1) {
+      delay(freq_ms);
+
       digitalWrite(outA, HIGH);
       digitalWrite(outB, LOW);
+      delay(freq_ms);
+
+      digitalWrite(outA, HIGH);
+      digitalWrite(outB, HIGH);
+      delay(freq_ms);
+
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, HIGH);
+      delay(freq_ms);
+
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, LOW);
+      step_forward = 0;
 
     }
-    if (stat_step == 2) {
-      digitalWrite(outA, HIGH);
-      digitalWrite(outB, HIGH);
-    }
-    if (stat_step == 3)
-    {
+     if (step_back){
+      
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, LOW);
+      delay(freq_ms);
+
       digitalWrite(outA, LOW);
       digitalWrite(outB, HIGH);
+      delay(freq_ms);
+
+      digitalWrite(outA, HIGH);
+      digitalWrite(outB, HIGH);
+      delay(freq_ms);
+
+      digitalWrite(outA, HIGH);
+      digitalWrite(outB, LOW);
+      delay(freq_ms);
+
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, LOW);
+      step_back = 0;
+
     }
+  
+    
   }
   else {
     loopON = 1;
-    stat_loop = stat_step;
+    stat_step == 0;
     forward_loop = digitalRead(inA);
     back_loop = digitalRead(inB);
     stepOFF = digitalRead(inS);
     if (!forward_loop) {
 
-      if (stat_loop == 0)
-      {
-        digitalWrite(outA, LOW);
-        digitalWrite(outB, LOW);
-        stat_step = 1;
-        delay(freq_ms);
-      }
-      if (stat_loop == 1) {
-        digitalWrite(outA, HIGH);
-        digitalWrite(outB, LOW);
-        stat_step = 2;
-        delay(freq_ms);
 
-      }
-      if (stat_loop == 2) {
-        digitalWrite(outA, HIGH);
-        digitalWrite(outB, HIGH);
-        stat_step = 3;
-        delay(freq_ms);
-      }
-      if (stat_loop == 3)
-      {
-        digitalWrite(outA, LOW);
-        digitalWrite(outB, HIGH);
-        stat_step = 0;
-        delay(freq_ms);
-      }
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, LOW);
+      stat_step = 1;
+      delay(freq_ms);
+
+      digitalWrite(outA, HIGH);
+      digitalWrite(outB, LOW);
+      stat_step = 2;
+      delay(freq_ms);
+
+      digitalWrite(outA, HIGH);
+      digitalWrite(outB, HIGH);
+      stat_step = 3;
+      delay(freq_ms);
+
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, HIGH);
+      stat_step = 0;
+      delay(freq_ms);
+
+    } else {
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, LOW);
     }
 
     if (!back_loop) {
 
-      if (stat_loop == 0)
-      {
-        digitalWrite(outA, LOW);
-        digitalWrite(outB, LOW);
-        stat_step = 1;
-        delay(freq_ms);
-      }
-      if (stat_loop == 1) {
-        digitalWrite(outA, LOW);
-        digitalWrite(outB, HIGH);
-        stat_step = 2;
-        delay(freq_ms);
 
-      }
-      if (stat_loop == 2) {
-        digitalWrite(outA, HIGH);
-        digitalWrite(outB, HIGH);
-        stat_step = 3;
-        delay(freq_ms);
-      }
-      if (stat_loop == 3)
-      {
-        digitalWrite(outA, HIGH);
-        digitalWrite(outB, LOW);
-        stat_step = 0;
-        delay(freq_ms);
-      }
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, LOW);
+      stat_step = 1;
+      delay(freq_ms);
+
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, HIGH);
+      stat_step = 2;
+      delay(freq_ms);
+
+      digitalWrite(outA, HIGH);
+      digitalWrite(outB, HIGH);
+      stat_step = 3;
+      delay(freq_ms);
+
+      digitalWrite(outA, HIGH);
+      digitalWrite(outB, LOW);
+      stat_step = 0;
+      delay(freq_ms);
+
+    } else {
+      digitalWrite(outA, LOW);
+      digitalWrite(outB, LOW);
     }
 
 
